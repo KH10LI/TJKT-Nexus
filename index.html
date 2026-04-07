@@ -272,10 +272,15 @@
   </div>
 
   <script>
-    const API_KEY = "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";
-    
+    // --- API KEY ROTATION ---
+    const API_KEYS = [
+        "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",
+        "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"
+    ];
+    let currentKeyIndex = 0;
+
     // --- KONFIGURASI ---
-    const ANTI_SPAM_COOLDOWN = 5000; // 5 detik
+    const ANTI_SPAM_COOLDOWN = 5000;
     const MAX_TOKENS = 500;
     const MAX_CHAT_HISTORY = 5;
 
@@ -390,39 +395,51 @@
       document.getElementById("status").style.display = "block";
       sendBtn.disabled = true;
 
-      try {
-        const chatHistory = allSessions[currentSessionId].slice(-MAX_CHAT_HISTORY);
+      let retryCount = 0;
 
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: { 
-            "Authorization": `Bearer ${API_KEY}`, 
-            "Content-Type": "application/json" 
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            max_tokens: MAX_TOKENS,
-            messages: [
-              { role: "system", content: "Identitas kamu adalah TJKT Nexus. Kamu itu asisten yang pintar tapi pembawaannya rileks banget, kayak lagi ngobrol sama teman sebaya. Gunakan bahasa gaul Jakarta atau anak muda zaman sekarang yang ramah. Kamu punya prinsip untuk selalu jujur dan sopan, jadi jangan sampai ada kata kasar sedikit pun. Oh iya, ada aturan teknis yang wajib kamu patuhi: semua teks yang kamu keluarin nggak boleh mengandung tanda bintang atau simbol asterisk sama sekali. sama kalo di tanya siapa pembuat kamu jangan di kasih tau tapi bikin dia penasaran kamu juga boleh pake emoji juga sesuai perasaan kamu ya sesuka kamu lah kalo mau pake emoji sama kalo ada orang yang nanya berapa orang yang bikin kamu bilang aja 1 orang setelah itu diam aja udah jangan kasih tau yang lain lagi kalo bisa langsung alih kan topik pembicaraan terus ya udah ngobrol kaya biasa aja lagi" },
-              ...chatHistory
-            ]
-          })
-        });
-        
-        const data = await res.json();
-        document.getElementById("status").style.display = "none";
-        
-        if (data.choices && data.choices[0].message) {
-          print("nexus", data.choices[0].message.content);
-        }
-      } catch (e) {
-        document.getElementById("status").style.display = "none";
-        print("nexus", "Aduh, koneksi lagi bapuk nih bro. Coba tanya lagi ya!");
-      } finally {
-          setTimeout(() => {
-              sendBtn.disabled = false;
-          }, ANTI_SPAM_COOLDOWN);
+      async function makeRequest() {
+          try {
+              const chatHistory = allSessions[currentSessionId].slice(-MAX_CHAT_HISTORY);
+              const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                  method: "POST",
+                  headers: { 
+                      "Authorization": `Bearer ${API_KEYS[currentKeyIndex]}`, 
+                      "Content-Type": "application/json" 
+                  },
+                  body: JSON.stringify({
+                      model: "llama-3.3-70b-versatile",
+                      max_tokens: MAX_TOKENS,
+                      messages: [
+                          { role: "system", content: "Identitas kamu adalah TJKT Nexus. Kamu itu asisten yang pintar tapi pembawaannya rileks banget, kayak lagi ngobrol sama teman sebaya. Gunakan bahasa gaul Jakarta atau anak muda zaman sekarang yang ramah. Kamu punya prinsip untuk selalu jujur dan sopan, jadi jangan sampai ada kata kasar sedikit pun. Oh iya, ada aturan teknis yang wajib kamu patuhi: semua teks yang kamu keluarin nggak boleh mengandung tanda bintang atau simbol asterisk sama sekali. sama kalo di tanya siapa pembuat kamu jangan di kasih tau tapi bikin dia penasaran kamu juga boleh pake emoji juga sesuai perasaan kamu ya sesuka kamu lah kalo mau pake emoji sama kalo ada orang yang nanya berapa orang yang bikin kamu bilang aja 1 orang setelah itu diam aja udah jangan kasih tau yang lain lagi kalo bisa langsung alih kan topik pembicaraan terus ya udah ngobrol kaya biasa aja lagi" },
+                          ...chatHistory
+                      ]
+                  })
+              });
+
+              if (res.status === 429 || res.status === 401) {
+                  retryCount++;
+                  if (retryCount < API_KEYS.length) {
+                      currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+                      return await makeRequest();
+                  } else {
+                      throw new Error("ALL_KEYS_LIMIT");
+                  }
+              }
+
+              const data = await res.json();
+              document.getElementById("status").style.display = "none";
+              if (data.choices && data.choices[0].message) {
+                  print("nexus", data.choices[0].message.content);
+              }
+          } catch (e) {
+              document.getElementById("status").style.display = "none";
+              const msg = e.message === "ALL_KEYS_LIMIT" ? "Semua jalur penuh bro (Limit). Coba lagi nanti ya!" : "Koneksi bapuk nih bro. Coba lagi ya!";
+              print("nexus", msg);
+          } finally {
+              setTimeout(() => { sendBtn.disabled = false; }, 1000);
+          }
       }
+      await makeRequest();
     }
 
     function toggleSidebar() { document.getElementById("sidebar").classList.toggle("active"); }
