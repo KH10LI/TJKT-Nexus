@@ -22,7 +22,6 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: var(--bg-dark);
       color: var(--text-main);
-      /* Pakai dvh supaya fix pas di layar HP */
       height: 100dvh;
       display: flex;
       justify-content: center;
@@ -64,7 +63,6 @@
       flex-direction: column;
       gap: 15px;
       scrollbar-width: none;
-      /* Background tipis biar nggak polos banget */
       background-image: radial-gradient(circle at 50% 50%, #111 0%, #09090b 100%);
     }
     #chat::-webkit-scrollbar { display: none; }
@@ -96,6 +94,7 @@
       font-size: 14px;
       line-height: 1.5;
       word-wrap: break-word;
+      position: relative;
     }
 
     .nexus .bubble {
@@ -103,6 +102,9 @@
       color: #e4e4e7;
       border: 1px solid #1c1c1f;
       border-bottom-left-radius: 4px;
+      /* Biar nggak bisa di-highlight/salin manual */
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .user .bubble {
@@ -112,8 +114,31 @@
       box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
     }
 
+    /* Tombol Copy Khusus Nexus */
+    .copy-btn {
+      align-self: flex-start;
+      margin-top: 6px;
+      margin-left: 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+
+    .copy-btn:hover {
+      color: var(--accent);
+      background: rgba(139, 92, 246, 0.1);
+    }
+
     .input-area {
-      padding: 15px 20px 25px; /* Padding bawah lebih lega buat navigasi HP */
+      padding: 15px 20px 25px;
       background: var(--bg-dark);
       border-top: 1px solid #1c1c1f;
     }
@@ -175,16 +200,38 @@
   <script>
     const API_KEY = "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";
 
+    function copyText(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalInner = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Disalin';
+        btn.style.color = "#10b981";
+        setTimeout(() => {
+          btn.innerHTML = originalInner;
+          btn.style.color = "";
+        }, 2000);
+      });
+    }
+
     function print(role, content) {
       const chat = document.getElementById("chat");
       const msgDiv = document.createElement("div");
       msgDiv.className = `msg ${role === "user" ? "user" : "nexus"}`;
       
-      msgDiv.innerHTML = `
+      let htmlContent = `
         <span class="label">${role === "user" ? "Anda" : "TJKT Nexus"}</span>
         <div class="bubble">${content}</div>
       `;
+
+      if (role === "nexus") {
+        // Tambah tombol copy kalau itu pesan dari Nexus
+        htmlContent += `
+          <button class="copy-btn" onclick="copyText(this, \`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">
+            <i class="fas fa-copy"></i> Copy
+          </button>
+        `;
+      }
       
+      msgDiv.innerHTML = htmlContent;
       chat.appendChild(msgDiv);
       chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
     }
