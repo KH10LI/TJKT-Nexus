@@ -3,25 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>TJKT AI | Nexus</title>
+  <title>TJKT AI | Nexus Platinum</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     * { 
       margin: 0; padding: 0; box-sizing: border-box; 
       -webkit-user-select: none; user-select: none;
-      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     :root {
-      --bg-dark: #09090b;
-      --sidebar-bg: #0c0c0e;
-      --card-dark: #121214;
-      --accent: #8b5cf6;
-      --text-main: #fafafa;
-      --text-muted: #a1a1aa;
-      --danger: #ef4444;
+      --bg-dark: #030305;
+      --sidebar-bg: #08080a;
+      --card-dark: #0e0e11;
+      --accent: #7c4dff;
+      --accent-soft: #9a75ff;
+      --accent-glow: rgba(124, 77, 255, 0.25);
+      --text-main: #ffffff;
+      --text-muted: #71717a;
+      --danger: #ff3d71;
+      --ease: cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     body {
@@ -33,190 +36,191 @@
       overflow: hidden;
     }
 
-    /* Sidebar */
+    /* --- SIDEBAR REFINED --- */
     .sidebar {
       width: 280px;
       background: var(--sidebar-bg);
-      border-right: 1px solid #1c1c1f;
+      border-right: 1px solid rgba(255,255,255,0.03);
       display: flex;
       flex-direction: column;
-      padding: 15px;
-      transition: all 0.3s ease;
+      padding: 24px 20px;
+      transition: transform 0.5s var(--ease);
       z-index: 100;
     }
 
     .new-chat-btn {
       width: 100%;
-      padding: 12px;
-      background: var(--accent);
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent), #5e35b1);
       border: none;
       color: white;
-      border-radius: 12px;
+      border-radius: 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      font-weight: 700;
+      gap: 12px;
+      font-weight: 800;
       font-size: 13px;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 20px -4px rgba(124, 77, 255, 0.4);
+      transition: all 0.4s var(--ease);
     }
 
-    .history-label { font-size: 10px; color: #52525b; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .new-chat-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px -4px rgba(124, 77, 255, 0.5); }
+
+    .history-label { 
+      font-size: 10px; color: var(--text-muted); font-weight: 800; 
+      margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px;
+      opacity: 0.7;
+    }
 
     #history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     #history-list::-webkit-scrollbar { width: 0; }
 
-    .history-item-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
+    .history-item-wrapper { position: relative; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.015); padding-bottom: 4px; }
 
     .history-item {
-      flex: 1;
-      padding: 12px 40px 12px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      color: var(--text-muted);
-      cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex: 1; padding: 12px 15px; border-radius: 12px; font-size: 13px;
+      color: var(--text-muted); cursor: pointer; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; transition: all 0.3s var(--ease);
       border: 1px solid transparent;
-      transition: 0.2s;
     }
 
     .history-item:hover, .history-item.active { 
-      background: #18181b; 
-      color: var(--text-main); 
-      border-color: #27272a;
+      background: rgba(255, 255, 255, 0.03); 
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.05);
     }
 
     .delete-session-btn {
-      position: absolute;
-      right: 10px;
-      background: transparent;
-      border: none;
-      color: #52525b;
-      cursor: pointer;
-      padding: 5px;
-      font-size: 12px;
-      opacity: 0;
-      transition: 0.2s;
+      position: absolute; right: 8px; background: #141417; 
+      border: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-muted);
+      padding: 7px; border-radius: 8px; font-size: 9px;
+      opacity: 0; transition: all 0.2s var(--ease);
     }
-
     .history-item-wrapper:hover .delete-session-btn { opacity: 1; }
-    .delete-session-btn:hover { color: var(--danger); }
-    .delete-session-btn.hidden { display: none; }
+    .delete-session-btn:hover { color: var(--danger); border-color: rgba(255, 61, 113, 0.2); }
 
-    /* Main Area */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
+    /* --- MAIN SECTION REFINED --- */
+    .main-content { 
+      flex: 1; display: flex; flex-direction: column; 
+      background: radial-gradient(circle at 50% 10%, rgba(124, 77, 255, 0.04), transparent 70%); 
     }
-
-    input { user-select: text; -webkit-user-select: text; }
 
     header {
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(9, 9, 11, 0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #1c1c1f;
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(3, 3, 5, 0.7);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      z-index: 10;
     }
 
-    .header-left { display: flex; align-items: center; gap: 15px; }
-    .toggle-sidebar { cursor: pointer; color: var(--text-muted); font-size: 18px; }
-    
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
-    .brand h1 { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .dot { width: 9px; height: 9px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 15px var(--accent); position: relative; }
+    .dot::after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--accent); animation: pulse 2.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.8); opacity: 0; } }
 
+    .brand h1 { font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; }
+
+    /* --- CHAT AREA REFINED --- */
     #chat {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      scrollbar-width: none;
+      flex: 1; overflow-y: auto; padding: 30px;
+      display: flex; flex-direction: column; gap: 24px;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.03) transparent;
     }
-    #chat::-webkit-scrollbar { display: none; }
+    #chat::-webkit-scrollbar { width: 4px; }
+    #chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius: 10px; }
 
-    .msg { max-width: 85%; display: flex; flex-direction: column; animation: msgIn 0.3s ease-out; }
-    @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } }
-    
+    .msg { max-width: 80%; display: flex; flex-direction: column; animation: chatIn 0.6s var(--ease); }
+    @keyframes chatIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
     .msg.user { align-self: flex-end; }
     .msg.nexus { align-self: flex-start; }
 
-    .label { font-size: 9px; font-weight: 700; color: #52525b; margin-bottom: 5px; text-transform: uppercase; }
-    .user .label { text-align: right; margin-right: 12px; }
+    .label { font-size: 9px; font-weight: 800; color: var(--text-muted); margin-bottom: 7px; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 5px; opacity: 0.8; }
+    .user .label { text-align: right; color: var(--accent-soft); }
 
-    .bubble { padding: 14px 18px; border-radius: 20px; font-size: 14px; line-height: 1.6; word-wrap: break-word; }
-    .nexus .bubble { background: var(--card-dark); color: #e4e4e7; border: 1px solid #1c1c1f; border-bottom-left-radius: 4px; }
-    .user .bubble { background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+    .bubble { 
+      padding: 15px 19px; border-radius: 20px; font-size: 14px; line-height: 1.65;
+      box-shadow: 0 8px 20px -8px rgba(0,0,0,0.4);
+    }
+    .nexus .bubble { 
+      background: var(--card-dark); color: #ededed; 
+      border: 1px solid rgba(255,255,255,0.03);
+      border-bottom-left-radius: 6px;
+    }
+    .user .bubble { 
+      background: linear-gradient(135deg, var(--accent), #6200ea); 
+      color: white; border-bottom-right-radius: 6px;
+      box-shadow: 0 8px 20px -6px rgba(124, 77, 255, 0.3);
+    }
 
     .copy-btn {
-      align-self: flex-start; margin-top: 8px; margin-left: 10px; background: transparent; border: none;
-      color: var(--text-muted); font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+      align-self: flex-start; margin: 10px 0 0 5px; background: transparent;
+      border: none; color: var(--text-muted); font-size: 10px; cursor: pointer;
+      display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.2s;
+    }
+    .copy-btn:hover { color: #fff; }
+
+    /* --- INPUT SECTION REFINED --- */
+    .input-area { 
+      padding: 15px 30px 35px; 
+      background: linear-gradient(to top, var(--bg-dark) 60%, transparent);
     }
 
-    .input-area { padding: 15px 20px 25px; background: var(--bg-dark); border-top: 1px solid #1c1c1f; }
-    #status { font-size: 11px; color: var(--accent); margin-bottom: 8px; display: none; font-weight: 500; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 50% { opacity: 0.5; } }
-
-    .control-row { display: flex; align-items: center; gap: 12px; }
-    .box { flex: 1; background: #161618; border: 1px solid #27272a; border-radius: 24px; padding: 5px 20px; display: flex; align-items: center; }
-    input { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 14px; height: 40px; }
-    
-    .send, .clean-btn { width: 40px; height: 40px; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .send { background: var(--accent); color: white; }
-    .clean-btn { background: #1c1c1f; border: 1px solid #27272a; color: var(--text-muted); }
-
-    /* --- MODAL STYLE --- */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(5px);
-      display: none; align-items: center; justify-content: center;
-      z-index: 1000; animation: fadeIn 0.2s ease;
-    }
-
-    .modal-card {
-      background: var(--card-dark);
-      border: 1px solid #27272a;
-      padding: 25px;
+    .input-container {
+      max-width: 900px; margin: 0 auto;
+      background: rgba(14, 14, 17, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 24px;
-      width: 90%; max-width: 340px;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      padding: 6px 8px 6px 22px;
+      display: flex; align-items: center;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+      transition: all 0.4s var(--ease);
+    }
+    .input-container:focus-within { 
+      border-color: rgba(124, 77, 255, 0.5);
+      box-shadow: 0 0 25px var(--accent-glow), 0 10px 30px -10px rgba(0,0,0,0.5);
+      transform: translateY(-2px);
+      background: rgba(14, 14, 17, 1);
     }
 
-    .modal-card i { font-size: 40px; color: var(--danger); margin-bottom: 15px; }
-    .modal-card h2 { font-size: 16px; margin-bottom: 10px; color: var(--text-main); }
-    .modal-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
-
-    .modal-btns { display: flex; gap: 10px; }
-    .modal-btns button {
-      flex: 1; padding: 12px; border-radius: 12px; border: none;
-      font-family: inherit; font-weight: 700; cursor: pointer; transition: 0.2s;
+    #input { 
+      flex: 1; background: transparent; border: none; outline: none; 
+      color: white; font-size: 14px; height: 48px; font-family: inherit;
+      user-select: text; -webkit-user-select: text;
     }
+    #input::placeholder { color: #4b4b53; }
 
-    .btn-cancel { background: #27272a; color: var(--text-main); }
-    .btn-confirm { background: var(--danger); color: white; }
-    .btn-confirm:hover { background: #dc2626; }
+    .send { 
+      width: 44px; height: 44px; border: none; border-radius: 16px; 
+      background: var(--accent); color: white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 10px rgba(124, 77, 255, 0.3);
+    }
+    .send:hover { background: var(--accent-soft); transform: scale(1.08) rotate(-5deg); box-shadow: 0 6px 15px rgba(124, 77, 255, 0.5); }
+    .send:active { transform: scale(0.92); }
 
+    /* --- STATUS & MODAL UNCHANGED --- */
+    #status { font-size: 10px; color: var(--accent-soft); margin-bottom: 12px; padding-left: 10px; display: none; font-weight: 700; letter-spacing: 0.5px; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-card { background: #0c0c0e; border: 1px solid rgba(255,255,255,0.06); padding: 35px; border-radius: 30px; width: 90%; max-width: 360px; text-align: center; transform: scale(0.9); animation: scaleUp 0.4s var(--ease) forwards; }
+    @keyframes scaleUp { to { transform: scale(1); } }
 
     @media (max-width: 768px) {
       .sidebar { position: absolute; left: -280px; height: 100%; }
-      .sidebar.active { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+      .sidebar.active { left: 0; box-shadow: 20px 0 50px rgba(0,0,0,0.7); }
+      .input-area { padding: 10px 15px 25px; }
+      header { padding: 14px 20px; }
+      #chat { padding: 20px; gap: 18px; }
+      .msg { max-width: 90%; }
+      .bubble { font-size: 13.5px; padding: 13px 17px; }
     }
   </style>
 </head>
@@ -226,45 +230,42 @@
     <button class="new-chat-btn" onclick="startNewChat()">
       <i class="fas fa-plus"></i> Obrolan Baru
     </button>
-    <div class="history-label">Riwayat Hari Ini</div>
+    <div class="history-label">Memory</div>
     <div id="history-list"></div>
   </div>
 
   <div class="main-content">
     <header>
       <div class="header-left">
-        <i class="fas fa-bars toggle-sidebar" onclick="toggleSidebar()"></i>
-        <div class="brand"><div class="dot"></div><h1>TJKT Nexus</h1></div>
+        <i class="fas fa-bars-staggered" style="cursor:pointer; margin-right: 18px; color: var(--text-muted); font-size: 16px; transition: 0.2s;" onclick="toggleSidebar()" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'"></i>
+        <div class="brand"><div class="dot"></div><h1>TJKT NEXUS</h1></div>
       </div>
-      <div style="font-size: 9px; color: #3f3f46; font-weight: 700;">V3.8 FINAL STABLE</div>
+      <div style="font-size: 9px; color: var(--accent); font-weight: 800; background: rgba(124, 77, 255, 0.08); padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(124, 77, 255, 0.15);">V3.8 PLATINUM</div>
     </header>
 
     <div id="chat"></div>
 
     <div class="input-area">
-      <div id="status">TJKT Nexus lagi ngetik...</div>
-      <div class="control-row">
-        <button class="clean-btn" onclick="bersihkanLayar()" title="Sapu Layar">
-          <i class="fas fa-broom"></i>
+      <div id="status">Nexus lagi ngerangkai kata...</div>
+      <div class="input-container">
+        <input id="input" type="text" placeholder="Tanya Nexus apa aja..." autocomplete="off">
+        <button class="send" onclick="gas()">
+          <i class="fas fa-paper-plane" style="font-size: 16px;"></i>
         </button>
-        <div class="box">
-          <input id="input" type="text" placeholder="Tanya sesuatu..." autocomplete="off">
-          <button class="send" onclick="gas()">
-            <i class="fas fa-paper-plane"></i>
-          </button>
-        </div>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="deleteModal">
     <div class="modal-card">
-      <i class="fas fa-exclamation-circle"></i>
-      <h2>Hapus Chat?</h2>
-      <p>Riwayat ini bakal hilang permanen bro, beneran mau dihapus?</p>
-      <div class="modal-btns">
-        <button class="btn-cancel" onclick="closeModal()">Nggak jadi</button>
-        <button class="btn-confirm" id="confirmDeleteBtn">Ya, Hapus</button>
+      <div style="background: rgba(255, 61, 113, 0.1); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; border: 1px solid rgba(255, 61, 113, 0.2);">
+        <i class="fas fa-trash-alt" style="font-size: 22px; color: var(--danger);"></i>
+      </div>
+      <h2 style="margin-bottom: 10px; font-weight: 800; font-size: 17px; letter-spacing: 0.5px;">Hapus Memori?</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 28px; line-height: 1.6;">Aksi ini bakal ngehapus riwayat obrolan secara permanen dari memory local kamu. Yakin bro?</p>
+      <div style="display: flex; gap: 12px;">
+        <button style="flex:1; padding: 14px; border-radius: 14px; border:none; background: #1a1a1d; color: #fff; cursor:pointer; font-weight: 700; font-size: 13px; transition: 0.2s;" onclick="closeModal()" onmouseover="this.style.background='#232327'" onmouseout="this.style.background='#1a1a1d'">Batal</button>
+        <button style="flex:1; padding: 14px; border-radius: 14px; border:none; background: var(--danger); color: #fff; cursor:pointer; font-weight: 700; font-size: 13px; transition: 0.2s;" id="confirmDeleteBtn" onmouseover="this.style.background='#ff5c8a'" onmouseout="this.style.background='var(--danger)'">Hapus</button>
       </div>
     </div>
   </div>
@@ -274,7 +275,7 @@
     
     let allSessions = JSON.parse(localStorage.getItem("nexus_sessions")) || {};
     let currentSessionId = "";
-    let sessionToDelete = null; // Penampung ID yang mau dihapus
+    let sessionToDelete = null;
 
     function saveSessions() {
       localStorage.setItem("nexus_sessions", JSON.stringify(allSessions));
@@ -289,27 +290,22 @@
       ids.reverse().forEach(id => {
         const wrapper = document.createElement("div");
         wrapper.className = "history-item-wrapper";
-
         const item = document.createElement("div");
         item.className = `history-item ${id === currentSessionId ? 'active' : ''}`;
-        item.innerText = allSessions[id][0]?.content || "Obrolan Baru";
+        item.innerText = allSessions[id][0]?.content || "Percakapan Baru";
         item.onclick = () => loadSession(id);
-
         const delBtn = document.createElement("button");
         delBtn.className = "delete-session-btn";
-        if (ids.length <= 1) delBtn.classList.add("hidden");
+        if (ids.length <= 1) delBtn.style.display = "none";
         delBtn.innerHTML = '<i class="fas fa-trash"></i>';
         delBtn.onclick = (e) => { e.stopPropagation(); askDelete(id); };
-
         wrapper.appendChild(item);
         wrapper.appendChild(delBtn);
         list.appendChild(wrapper);
       });
     }
 
-    // Fungsi pemicu modal
     function askDelete(id) {
-      if(Object.keys(allSessions).length <= 1) return;
       sessionToDelete = id;
       document.getElementById("deleteModal").style.display = "flex";
     }
@@ -319,7 +315,6 @@
       sessionToDelete = null;
     }
 
-    // Logika hapus setelah dikonfirmasi di modal
     document.getElementById("confirmDeleteBtn").onclick = () => {
       if (sessionToDelete) {
         delete allSessions[sessionToDelete];
@@ -330,16 +325,11 @@
     };
 
     function startNewChat() {
-      Object.keys(allSessions).forEach(id => {
-        if (allSessions[id].length === 0 && Object.keys(allSessions).length > 1) delete allSessions[id];
-      });
-
       currentSessionId = "session_" + Date.now();
       allSessions[currentSessionId] = [];
       document.getElementById("chat").innerHTML = "";
       saveSessions();
-      print("nexus", "Layar bersih bro, Nexus siap bantu!", false);
-      if(window.innerWidth <= 768) toggleSidebar();
+      if(window.innerWidth <= 768 && document.getElementById("sidebar").classList.contains("active")) toggleSidebar();
     }
 
     function loadSession(id) {
@@ -351,10 +341,8 @@
     }
 
     function copyText(btn, text) {
-      const t = document.createElement("textarea");
-      t.value = text; document.body.appendChild(t); t.select();
-      document.execCommand("copy"); document.body.removeChild(t);
-      btn.innerHTML = '<i class="fas fa-check"></i> Disalin';
+      navigator.clipboard.writeText(text);
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied';
       setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i> Copy', 2000);
     }
 
@@ -362,7 +350,7 @@
       const chat = document.getElementById("chat");
       const msgDiv = document.createElement("div");
       msgDiv.className = `msg ${role === "user" ? "user" : "nexus"}`;
-      let html = `<span class="label">${role === "user" ? "You" : "TJKT Nexus"}</span>
+      let html = `<span class="label">${role === "user" ? "kamu" : "Nexus"}</span>
                   <div class="bubble">${content}</div>`;
       if (role === "nexus") html += `<button class="copy-btn" onclick="copyText(this, \`${content}\`)"><i class="fas fa-copy"></i> Copy</button>`;
       msgDiv.innerHTML = html;
@@ -370,7 +358,6 @@
       chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
 
       if (save) {
-        if(!allSessions[currentSessionId]) allSessions[currentSessionId] = [];
         allSessions[currentSessionId].push({ role: role === "nexus" ? "assistant" : "user", content });
         saveSessions();
       }
@@ -395,7 +382,7 @@
           body: JSON.stringify({
             model: "llama-3.3-70b-versatile",
             messages: [
-              { role: "system", content: "Identitas kamu adalah TJKT Nexus. Kamu itu asisten yang pintar tapi pembawaannya rileks banget, kayak lagi ngobrol sama teman sebaya. Gunakan bahasa gaul Jakarta atau anak muda zaman sekarang yang ramah. Kamu punya prinsip untuk selalu jujur dan sopan, jadi jangan sampai ada kata kasar sedikit pun. Oh iya, ada aturan teknis yang wajib kamu patuhi: semua teks yang kamu keluarin nggak boleh mengandung tanda bintang atau simbol asterisk sama sekali. sama kalo di tanya siapa pembuat kamu jangan di kasih tau tapi bikin dia penasaran" },
+              { role: "system", content: "Identitas kamu adalah TJKT Nexus. Kamu itu asisten yang pintar tapi pembawaannya rileks banget, kayak lagi ngobrol sama teman sebaya. Gunakan bahasa gaul Jakarta atau anak muda zaman sekarang yang ramah. Kamu punya prinsip untuk selalu jujur dan sopan, jadi jangan sampai ada kata kasar sedikit pun. Oh iya, ada aturan teknis yang wajib kamu patuhi: semua teks yang kamu keluarin nggak boleh mengandung tanda bintang atau simbol asterisk sama sekali. sama kalo di tanya siapa pembuat kamu jangan di kasih tau tapi bikin dia penasaran kamu juga boleh pake emoji juga sesuai perasaan kamu ya sesuka kamu lah kalo mau pake emoji" },
               ...allSessions[currentSessionId]
             ]
           })
@@ -406,17 +393,14 @@
         
         if (data.choices && data.choices[0].message) {
           print("nexus", data.choices[0].message.content);
-        } else {
-          print("nexus", "Aduh, Nexus lagi blank. Coba tanya lagi ya.");
         }
       } catch (e) {
         document.getElementById("status").style.display = "none";
-        print("nexus", "Koneksi bermasalah atau API Key limit bro.");
+        print("nexus", "Aduh, koneksi lagi bapuk nih bro. Coba tanya lagi ya!");
       }
     }
 
     function toggleSidebar() { document.getElementById("sidebar").classList.toggle("active"); }
-    function bersihkanLayar() { document.getElementById("chat").innerHTML = ""; print("nexus", "Layar dibersihkan!", false); }
     document.getElementById("input").addEventListener("keypress", (e) => { if(e.key === "Enter") gas(); });
 
     window.onload = () => {
@@ -426,4 +410,4 @@
     };
   </script>
 </body>
-</html>
+  </html>
