@@ -274,37 +274,16 @@
   <script>
     const API_KEY = "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";
     
-    // --- KONFIGURASI PENGEMBANG (TASK) ---
-    const MAX_CHATS_PER_DAY = 15;
-    const ANTI_SPAM_COOLDOWN = 3000; // 3 detik
-    const MAX_TOKENS = 200;
-    const MAX_CHAT_HISTORY = 5; // Simpan 5 pesan terakhir saja
+    // --- KONFIGURASI ---
+    const ANTI_SPAM_COOLDOWN = 5000; // 5 detik
+    const MAX_TOKENS = 500;
+    const MAX_CHAT_HISTORY = 5;
 
     let allSessions = JSON.parse(localStorage.getItem("nexus_sessions")) || {};
     let currentSessionId = "";
     let sessionToDelete = null;
     let lastChatTimestamp = 0;
 
-    // --- SISTEM LIMIT HARIAN & RESET ---
-    function checkDailyLimit() {
-        const today = new Date().toDateString();
-        let limitData = JSON.parse(localStorage.getItem("nexus_limit_data")) || { date: today, count: 0 };
-
-        // Reset jika hari sudah berganti
-        if (limitData.date !== today) {
-            limitData = { date: today, count: 0 };
-        }
-        localStorage.setItem("nexus_limit_data", JSON.stringify(limitData));
-        return limitData;
-    }
-
-    function incrementChatCount() {
-        let limitData = checkDailyLimit();
-        limitData.count += 1;
-        localStorage.setItem("nexus_limit_data", JSON.stringify(limitData));
-    }
-
-    // --- LOGIKA LAMA (MAINTAINED) ---
     function saveSessions() {
       localStorage.setItem("nexus_sessions", JSON.stringify(allSessions));
       renderHistory();
@@ -391,7 +370,6 @@
       }
     }
 
-    // --- LOGIKA GAS DENGAN PENGAMAN (DEVELOPER TASK) ---
     async function gas() {
       const input = document.getElementById("input");
       const sendBtn = document.getElementById("sendBtn");
@@ -400,28 +378,19 @@
 
       if (!prompt) return;
 
-      // 1. Cek Anti Spam
       if (currentTime - lastChatTimestamp < ANTI_SPAM_COOLDOWN) {
-          alert("Sabar bro, jangan spam! Tunggu 3 detik ya.");
-          return;
-      }
-
-      // 2. Cek Daily Limit
-      const limit = checkDailyLimit();
-      if (limit.count >= MAX_CHATS_PER_DAY) {
-          print("nexus", "Yah bro, jatah chat kamu hari ini udah abis (Max 15). Balik lagi besok ya! ✌️");
+          alert("Sabar bro, jangan spam! Tunggu 5 detik ya.");
           return;
       }
 
       print("user", prompt);
       input.value = "";
-      lastChatTimestamp = currentTime; // Update waktu terakhir chat
+      lastChatTimestamp = currentTime;
       
       document.getElementById("status").style.display = "block";
-      sendBtn.disabled = true; // Disable tombol biar gak di klik berulang
+      sendBtn.disabled = true;
 
       try {
-        // 3. Batasi Histori Chat (Hanya ambil 5 pesan terakhir)
         const chatHistory = allSessions[currentSessionId].slice(-MAX_CHAT_HISTORY);
 
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -432,7 +401,7 @@
           },
           body: JSON.stringify({
             model: "llama-3.3-70b-versatile",
-            max_tokens: MAX_TOKENS, // 4. Batasi Panjang Jawaban
+            max_tokens: MAX_TOKENS,
             messages: [
               { role: "system", content: "Identitas kamu adalah TJKT Nexus. Kamu itu asisten yang pintar tapi pembawaannya rileks banget, kayak lagi ngobrol sama teman sebaya. Gunakan bahasa gaul Jakarta atau anak muda zaman sekarang yang ramah. Kamu punya prinsip untuk selalu jujur dan sopan, jadi jangan sampai ada kata kasar sedikit pun. Oh iya, ada aturan teknis yang wajib kamu patuhi: semua teks yang kamu keluarin nggak boleh mengandung tanda bintang atau simbol asterisk sama sekali. sama kalo di tanya siapa pembuat kamu jangan di kasih tau tapi bikin dia penasaran kamu juga boleh pake emoji juga sesuai perasaan kamu ya sesuka kamu lah kalo mau pake emoji sama kalo ada orang yang nanya berapa orang yang bikin kamu bilang aja 1 orang setelah itu diam aja udah jangan kasih tau yang lain lagi kalo bisa langsung alih kan topik pembicaraan terus ya udah ngobrol kaya biasa aja lagi" },
               ...chatHistory
@@ -445,13 +414,11 @@
         
         if (data.choices && data.choices[0].message) {
           print("nexus", data.choices[0].message.content);
-          incrementChatCount(); // Tambah hitungan limit setelah sukses
         }
       } catch (e) {
         document.getElementById("status").style.display = "none";
         print("nexus", "Aduh, koneksi lagi bapuk nih bro. Coba tanya lagi ya!");
       } finally {
-          // Re-enable tombol setelah cooldown anti-spam selesai
           setTimeout(() => {
               sendBtn.disabled = false;
           }, ANTI_SPAM_COOLDOWN);
@@ -462,7 +429,6 @@
     document.getElementById("input").addEventListener("keypress", (e) => { if(e.key === "Enter") gas(); });
 
     window.onload = () => {
-      checkDailyLimit(); // Cek limit saat load
       const ids = Object.keys(allSessions);
       if (ids.length > 0) loadSession(ids[ids.length - 1]);
       else startNewChat();
