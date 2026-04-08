@@ -275,7 +275,8 @@
     // --- API KEY ROTATION ---
     const API_KEYS = [
         "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",
-        "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"
+        "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",
+        "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"
     ];
     let currentKeyIndex = 0;
 
@@ -395,7 +396,9 @@
       document.getElementById("status").style.display = "block";
       sendBtn.disabled = true;
 
-      let retryCount = 0;
+      // Variable buat nge-track udah berapa kali muter list API Keys
+      let totalRetriesAcrossAllKeys = 0;
+      const maxRetries = API_KEYS.length * 2; // Coba muter list maksimal 2 kali putaran
 
       async function makeRequest() {
           try {
@@ -416,10 +419,14 @@
                   })
               });
 
+              // Jika kena Limit (429) atau Unauthorized (401)
               if (res.status === 429 || res.status === 401) {
-                  retryCount++;
-                  if (retryCount < API_KEYS.length) {
+                  totalRetriesAcrossAllKeys++;
+                  
+                  if (totalRetriesAcrossAllKeys < maxRetries) {
+                      // Geser ke key berikutnya (Looping balik ke 0 kalau sudah di ujung)
                       currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+                      console.log("Switching to Key Index: " + currentKeyIndex);
                       return await makeRequest();
                   } else {
                       throw new Error("ALL_KEYS_LIMIT");
@@ -433,7 +440,7 @@
               }
           } catch (e) {
               document.getElementById("status").style.display = "none";
-              const msg = e.message === "ALL_KEYS_LIMIT" ? "Semua jalur penuh bro (Limit). Coba lagi nanti ya!" : "Koneksi bapuk nih bro. Coba lagi ya!";
+              const msg = e.message === "ALL_KEYS_LIMIT" ? "Waduh, semua jalur API lagi penuh banget (Limit). Coba tunggu semenit terus chat lagi ya bro!" : "Koneksi lagi bapuk nih bro. Coba lagi ya!";
               print("nexus", msg);
           } finally {
               setTimeout(() => { sendBtn.disabled = false; }, 1000);
