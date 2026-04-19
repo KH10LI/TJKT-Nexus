@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title></title>
     <style>
         /* Modern Reset & Anti-Copy */
@@ -12,11 +12,13 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            /* Mematikan gesture zoom bawaan browser */
+            touch-action: pan-x pan-y; 
         }
 
         :root {
             --primary-glow: #ffffff;
-            --accent-color: #007AFF; /* Biru Apple Style atau ganti ke #f1c40f untuk Gold */
+            --accent-color: #007AFF; 
             --bg-color: #050505;
         }
 
@@ -68,7 +70,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Status Badge */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -88,7 +89,7 @@
         .status-dot {
             width: 8px;
             height: 8px;
-            background-color: #00ff88; /* Hijau aktif */
+            background-color: #00ff88;
             border-radius: 50%;
             box-shadow: 0 0 12px #00ff88;
             animation: pulse 2s infinite;
@@ -118,7 +119,6 @@
             font-weight: 300;
         }
 
-        /* Timer Grid */
         #countdown {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -130,15 +130,7 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             padding: 20px 0;
             border-radius: 20px;
-            position: relative;
-            overflow: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .time-box:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
         }
 
         .number {
@@ -156,7 +148,6 @@
             letter-spacing: 1.5px;
         }
 
-        /* Futuristic Progress Bar */
         .progress-wrapper {
             margin-top: 50px;
         }
@@ -170,7 +161,7 @@
         }
 
         .progress-bar {
-            width: 0%; /* Will be updated by JS */
+            width: 0%;
             height: 100%;
             background: linear-gradient(90deg, transparent, #fff, transparent);
             background-size: 200% 100%;
@@ -189,7 +180,6 @@
             color: #444;
             letter-spacing: 1px;
         }
-
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -202,7 +192,7 @@
             System Upgrading
         </div>
 
-        <h1>tunggu ya rek</h1>
+        <h1>tunggu ya</h1>
         <p class="description">Kami sedang memperkuat mesin agar pengalamanmu lebih kencang dan stabil.</p>
 
         <div id="countdown">
@@ -233,15 +223,15 @@
     </div>
 
     <script>
-        // TARGET DATE CONFIGURATION
+        // --- 1. CONFIG TARGET DATE ---
         const TAHUN   = 2026;
-        const BULAN   = 4;   // April
+        const BULAN   = 4;
         const TANGGAL = 23;
         const JAM     = 10;
         const MENIT   = 0;
 
         const targetDate = new Date(TAHUN, BULAN - 1, TANGGAL, JAM, MENIT).getTime();
-        const startDate = new Date().getTime(); // Untuk keperluan progress bar
+        const startDate = new Date().getTime();
 
         function updateCountdown() {
             const now = new Date().getTime();
@@ -256,32 +246,55 @@
                 return;
             }
 
-            // Time Calculations
             const d = Math.floor(remaining / (1000 * 60 * 60 * 24));
             const h = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
             const s = Math.floor((remaining % (1000 * 60)) / 1000);
 
-            // Update UI
             document.getElementById("d").innerText = String(d).padStart(2, '0');
             document.getElementById("h").innerText = String(h).padStart(2, '0');
             document.getElementById("m").innerText = String(m).padStart(2, '0');
             document.getElementById("s").innerText = String(s).padStart(2, '0');
 
-            // Update Progress Bar (Simulasi)
             const progress = ((totalDuration - remaining) / totalDuration) * 100;
             document.getElementById("p-bar").style.width = Math.max(10, progress) + "%";
         }
 
-        updateCountdown();
         const interval = setInterval(updateCountdown, 1000);
+        updateCountdown();
 
-        // Security
-        document.onkeydown = (e) => {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && [73, 67, 74].includes(e.keyCode)) || (e.ctrlKey && [85, 83].includes(e.keyCode))) {
-                return false;
+        // --- 2. ANTI-ZOOM & SECURITY SCRIPT ---
+
+        // Mencegah Zoom melalui Keyboard (Ctrl +/-/0)
+        document.addEventListener('keydown', function (e) {
+            // Block Inspect Elements & View Source
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && [73, 67, 74].includes(e.keyCode)) || (e.ctrlKey && [85, 83].includes(e.keyCode))) {
+                e.preventDefault();
             }
-        };
+            // Block Zoom Keys
+            if (e.ctrlKey && [61, 107, 173, 109, 187, 189, 48].includes(e.keyCode)) {
+                e.preventDefault();
+            }
+        });
+
+        // Mencegah Zoom melalui Mouse Wheel (Ctrl + Scroll)
+        document.addEventListener('wheel', function (e) {
+            if (e.ctrlKey) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Mencegah Zoom melalui Gesture Pinch (Touchpad/Mobile)
+        document.addEventListener('touchmove', function (e) {
+            if (e.scale !== undefined && e.scale !== 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Tambahan untuk Safari/Chrome iOS
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
     </script>
 </body>
 </html>
